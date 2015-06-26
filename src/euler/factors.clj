@@ -10,3 +10,16 @@
 
 (defn count-factors [n]
   (apply * (map #(inc %) (vals (frequencies (prime-factors n))))))
+
+(defn sum-of-factors 
+  "The sum of all factors of n, including 1 and n itself."
+  [n]
+  (let [sqrt   (int (Math/sqrt n))
+        prime? (= n (* sqrt sqrt))]
+    (reduce (fn [sum x]
+              (+ sum
+                 (if (zero? (rem n x))
+                   x
+                   0)))
+            (if prime? (+ 1 sqrt) 1)
+            (range 2 (if prime? n (inc n))))))
