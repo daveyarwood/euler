@@ -1,4 +1,5 @@
-(ns euler.factors)
+(ns euler.factors 
+  (:require [clojure.math.combinatorics :as combo]))
 
 (defn prime-factors [n]
   (letfn [(factors-starting-at [f n]
@@ -11,15 +12,12 @@
 (defn count-factors [n]
   (apply * (map #(inc %) (vals (frequencies (prime-factors n))))))
 
+(defn proper-divisors [n]
+  (into #{1} 
+    (map #(apply * %)
+         (combo/subsets (prime-factors n)))))
+
 (defn sum-of-factors 
   "The sum of all factors of n, including 1 and n itself."
   [n]
-  (let [sqrt   (int (Math/sqrt n))
-        prime? (= n (* sqrt sqrt))]
-    (reduce (fn [sum x]
-              (+ sum
-                 (if (zero? (rem n x))
-                   x
-                   0)))
-            (if prime? (+ 1 sqrt) 1)
-            (range 2 (if prime? n (inc n))))))
+  (reduce + (proper-divisors n)))
