@@ -16,7 +16,19 @@
 (def abundant-numbers
   (filter #(-> % evaluate (= :abundant)) (range 1 28124)))
 
+(defn- abundant? [n]
+  (contains? (set abundant-numbers) n))
+
+(defn- abundant-numbers-below [n]
+  (take-while #(< % n) abundant-numbers))
+
+(defn meets-criteria?
+  "Cannot be written as the sum of two abundant numbers."
+  [n]
+  (not-any? #(abundant? (- n %)) (abundant-numbers-below n)))
+
 ; almost there...
-; idea: loop through abundant-numbers, and for each one,
-; try subtracting every abundant number below it and seeing
-; if the result is in abundant-numbers
+; idea: for each number 1-28123, try subtracting every abundant number below
+; it and seeing if the result is in abundant-numbers
+
+; hmm... (reduce + (filter meets-criteria? (range 1 28124))) takes too long.
