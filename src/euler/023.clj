@@ -16,19 +16,31 @@
 (def abundant-numbers
   (filter #(-> % evaluate (= :abundant)) (range 1 28124)))
 
-(defn- abundant? [n]
-  (contains? (set abundant-numbers) n))
-
-(defn- abundant-numbers-below [n]
-  (take-while #(< % n) abundant-numbers))
-
 (defn meets-criteria?
-  "Cannot be written as the sum of two abundant numbers."
-  [n]
-  (not-any? #(abundant? (- n %)) (abundant-numbers-below n)))
+  "Cannot be written as the sum of two abundant numbers.
+   
+   To improve performance, this function takes a list of abundant numbers for
+   comparison, instead of checking all known abundant numbers."
+  [n abundants]
+  (letfn [(abundant? [x]
+            (contains? (set abundants) x))
+          (abundant-numbers-below [n]
+            (take-while #(< % n) abundant-numbers))] 
+    (not-any? #(abundant? (- n %)) (abundant-numbers-below n))))
 
-; almost there...
-; idea: for each number 1-28123, try subtracting every abundant number below
-; it and seeing if the result is in abundant-numbers
+(def odd-abundant-numbers
+  (filter odd? abundant-numbers))
 
-; hmm... (reduce + (filter meets-criteria? (range 1 28124))) takes too long.
+(def even-abundant-numbers
+  (filter even? abundant-numbers))
+
+(let [odd-winners (filter #(meets-criteria? % even-abundant-numbers)
+                          (range 957 20162 2))
+      even-winners (filter #(meets-criteria? % 
+                                             (take-while (fn [a] (<= a (/ % 2))) 
+                                                         even-abundant-numbers))
+                           (range 24 20161 2))]
+  (reduce + (concat odd-winners even-winners)))
+
+; can't get the performance right with this one... 
+; everything i try takes forever :/
